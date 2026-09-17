@@ -1,0 +1,4 @@
+{
+  "watch": ["server.js", "controllers", "models", "routes", "middleware", "config"],
+  "ignore": ["uploads/**", "*.log"]
+}

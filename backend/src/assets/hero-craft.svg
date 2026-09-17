@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 620">
+<defs>
+ <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f8efe3"/><stop offset="1" stop-color="#ead9c5"/></linearGradient>
+ <linearGradient id="yarn" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#7a4b3a"/><stop offset="1" stop-color="#b8745b"/></linearGradient>
+ <linearGradient id="cream" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff9ef"/><stop offset="1" stop-color="#eadfce"/></linearGradient>
+ <filter id="shadow"><feDropShadow dx="0" dy="20" stdDeviation="22" flood-opacity=".14"/></filter>
+</defs>
+<rect width="720" height="620" rx="44" fill="url(#bg)"/>
+<circle cx="575" cy="120" r="78" fill="#d8a04b" opacity=".22"/>
+<circle cx="130" cy="500" r="100" fill="#5d3a31" opacity=".08"/>
+<g filter="url(#shadow)">
+ <path d="M168 214c0-48 86-87 192-87s192 39 192 87v232c0 66-86 108-192 108s-192-42-192-108z" fill="#6f4437"/>
+ <ellipse cx="360" cy="216" rx="192" ry="76" fill="#8c5947"/>
+ <ellipse cx="360" cy="213" rx="155" ry="55" fill="#f7ead8"/>
+ <path d="M220 220c28-38 71-57 140-57s112 19 140 57c-18 35-69 54-140 54s-122-19-140-54z" fill="url(#cream)"/>
+ <path d="M250 211c22-28 61-43 110-43s88 15 110 43" fill="none" stroke="#c98768" stroke-width="9" stroke-linecap="round"/>
+ <path d="M255 229c29-28 61-28 90 0s61 28 90 0" fill="none" stroke="#7a4b3a" stroke-width="8" stroke-linecap="round"/>
+ <path d="M255 250c29-28 61-28 90 0s61 28 90 0" fill="none" stroke="#c98768" stroke-width="8" stroke-linecap="round"/>
+ <path d="M280 276c22-24 49-24 80 0s58 24 80 0" fill="none" stroke="#7a4b3a" stroke-width="7" stroke-linecap="round"/>
+</g>
+<g transform="translate(495 342) rotate(10)">
+ <circle cx="0" cy="0" r="82" fill="#fffaf1" stroke="#5d3a31" stroke-width="7"/>
+ <path d="M-52 15c22-38 66-42 99-8M-57 39c27-37 70-38 109-2M-39 62c25-24 56-27 82-9" fill="none" stroke="#c98768" stroke-width="8" stroke-linecap="round"/>
+ <path d="M-26-55c24-15 48-15 69 0" fill="none" stroke="#7a4b3a" stroke-width="8" stroke-linecap="round"/>
+ <path d="M52-4c35 13 49 38 42 67" fill="none" stroke="#5d3a31" stroke-width="6" stroke-linecap="round"/>
+</g>
+<g transform="translate(118 130)">
+ <circle cx="0" cy="0" r="38" fill="#d8a04b"/>
+ <path d="M-19 0c12-21 33-21 40 0s28 21 40 0" fill="none" stroke="#fff4df" stroke-width="7" stroke-linecap="round"/>
+</g>
+<text x="42" y="570" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#5d3a31" letter-spacing="3">HANDMADE • RAJUT • D-PLOSOKK</text>
+</svg>

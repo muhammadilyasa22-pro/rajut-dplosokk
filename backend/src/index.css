@@ -1,0 +1,209 @@
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,500&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+/* ===== Design tokens — Toko Pengrajut D-PLOSOKK ===== */
+:root {
+  --pine-50: #EAF1EC;
+  --pine-100: #CFE0D6;
+  --pine-400: #2E664F;
+  --pine-500: #1F4D3D;
+  --pine-600: #173D30;
+  --pine-700: #102A21;
+
+  --marigold-300: #F5C776;
+  --marigold-400: #F0B25A;
+  --marigold-500: #E8A33D;
+  --marigold-600: #C9812A;
+
+  --chili-500: #C4432B;
+  --chili-600: #A6371F;
+
+  --paper: #FBF8F2;
+  --paper-2: #F3EEE1;
+  --ink: #1A2420;
+
+  /* Override Bootstrap's own theme variables so its components (buttons,
+     forms, badges, navbar) inherit the toko pengrajut palette automatically */
+  --bs-primary: var(--pine-500);
+  --bs-primary-rgb: 31, 77, 61;
+  --bs-body-bg: var(--paper);
+  --bs-body-color: var(--ink);
+  --bs-body-font-family: "Plus Jakarta Sans", sans-serif;
+  --bs-link-color: var(--pine-600);
+  --bs-link-hover-color: var(--pine-700);
+  --bs-border-radius: 0.75rem;
+  --bs-border-radius-lg: 1rem;
+  --bs-border-radius-sm: 0.5rem;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--paper);
+  color: var(--ink);
+}
+
+.font-display {
+  font-family: "Fraunces", serif;
+}
+
+.price-mono {
+  font-family: "IBM Plex Mono", monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- Brand color utilities (kept minimal, on top of Bootstrap) ---- */
+.text-pine { color: var(--pine-600) !important; }
+.text-pine-dark { color: var(--pine-700) !important; }
+.text-marigold { color: var(--marigold-600) !important; }
+.text-chili { color: var(--chili-500) !important; }
+.bg-pine { background-color: var(--pine-500) !important; }
+.bg-pine-dark { background-color: var(--pine-700) !important; }
+.bg-paper-2 { background-color: var(--paper-2) !important; }
+.bg-marigold { background-color: var(--marigold-500) !important; }
+
+/* ---- Buttons ---- */
+.btn-toko pengrajut {
+  background-color: var(--pine-500);
+  border-color: var(--pine-500);
+  color: var(--paper);
+  font-weight: 600;
+}
+.btn-toko pengrajut:hover,
+.btn-toko pengrajut:focus {
+  background-color: var(--pine-600);
+  border-color: var(--pine-600);
+  color: var(--paper);
+}
+.btn-toko pengrajut:disabled {
+  opacity: 0.5;
+}
+
+.btn-accent {
+  background-color: var(--marigold-500);
+  border-color: var(--marigold-500);
+  color: var(--pine-700);
+  font-weight: 600;
+}
+.btn-accent:hover,
+.btn-accent:focus {
+  background-color: var(--marigold-400);
+  border-color: var(--marigold-400);
+  color: var(--pine-700);
+}
+
+.btn-outline-toko pengrajut {
+  background-color: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  color: var(--paper);
+  font-weight: 600;
+}
+.btn-outline-toko pengrajut:hover {
+  background-color: rgba(255, 255, 255, 0.12);
+  color: var(--paper);
+}
+
+/* ---- Cards ---- */
+.card-toko pengrajut {
+  background: #fff;
+  border: 1px solid rgba(31, 77, 61, 0.1);
+  border-radius: var(--bs-border-radius-lg);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+.card-toko pengrajut:hover {
+  transform: translateY(-3px);
+  border-color: rgba(31, 77, 61, 0.3);
+  box-shadow: 0 8px 20px rgba(16, 42, 33, 0.08);
+}
+
+.card-img-wrap {
+  aspect-ratio: 1 / 1;
+  background-color: var(--paper-2);
+  overflow: hidden;
+}
+.card-img-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+.card-toko pengrajut:hover .card-img-wrap img {
+  transform: scale(1.05);
+}
+
+/* Signature element — perforated "receipt" edge, used on cards, cart
+   summary and dashboard stat tiles to tie the digital UI back to a
+   physical toko pengrajut receipt */
+.nota-edge {
+  position: relative;
+}
+.nota-edge::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -1px;
+  height: 10px;
+  background-image: radial-gradient(circle at 8px 0, transparent 6px, var(--paper) 6.5px);
+  background-size: 16px 10px;
+  background-repeat: repeat-x;
+}
+.nota-edge.on-white::before {
+  background-image: radial-gradient(circle at 8px 0, transparent 6px, #fff 6.5px);
+}
+
+/* ---- Forms ---- */
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--pine-500);
+  box-shadow: 0 0 0 0.2rem rgba(31, 77, 61, 0.15);
+}
+
+/* ---- Badges / status pills ---- */
+.badge-pending { background-color: rgba(232, 163, 61, 0.18); color: var(--marigold-600); }
+.badge-diproses { background-color: rgba(31, 77, 61, 0.14); color: var(--pine-600); }
+.badge-selesai { background-color: var(--pine-500); color: var(--paper); }
+.badge-batal { background-color: rgba(196, 67, 43, 0.14); color: var(--chili-500); }
+
+/* ---- Misc ---- */
+.hover-lift {
+  transition: transform 0.2s ease;
+}
+.hover-lift:hover {
+  transform: translateY(-2px);
+}
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.dot-grid-overlay {
+  background-image: radial-gradient(circle, rgba(251, 248, 242, 0.35) 1.5px, transparent 1.5px);
+  background-size: 14px 14px;
+}
+
+/* Visible keyboard focus everywhere (Bootstrap already covers most
+   controls; this fills in plain links/buttons) */
+a:focus-visible,
+button:focus-visible {
+  outline: 2px solid var(--marigold-500);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+::-webkit-scrollbar { width: 10px; }
+::-webkit-scrollbar-track { background: var(--paper-2); }
+::-webkit-scrollbar-thumb { background: var(--pine-500); border-radius: 6px; }
