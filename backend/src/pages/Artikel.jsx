@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { getArtikel } from "../services/api";
+import { imageUrl } from "../config";
 
 export default function Artikel() {
     const [artikel, setArtikel] = useState([]);
@@ -18,48 +19,51 @@ export default function Artikel() {
 
                 console.log("Response artikel:", response);
 
-                // Axios biasanya menyimpan JSON server di response.data
-                const responseData = response?.data;
-
-                let dataArtikel = [];
-
-                // Bentuk:
-                // {
-                //   message: "...",
-                //   data: [...]
-                // }
-                if (Array.isArray(responseData?.data)) {
-                    dataArtikel = responseData.data;
+                if (!mounted) {
+                    return;
                 }
 
-                // Jika API langsung mengembalikan array
-                else if (Array.isArray(responseData)) {
-                    dataArtikel = responseData;
+                /*
+                 * services/api.js mengembalikan:
+                 *
+                 * {
+                 *     data: [...],
+                 *     status: 200
+                 * }
+                 *
+                 * Backend /api/artikel juga mengembalikan
+                 * array artikel secara langsung.
+                 */
+
+                let dataArtikel = response?.data;
+
+                // Jika response.data berbentuk { data: [...] }
+                if (Array.isArray(dataArtikel?.data)) {
+                    dataArtikel = dataArtikel.data;
                 }
 
-                // Jika service sudah mengembalikan data array
-                else if (Array.isArray(response)) {
-                    dataArtikel = response;
+                // Jika response.data langsung berupa array
+                if (!Array.isArray(dataArtikel)) {
+                    dataArtikel = [];
                 }
 
-                if (mounted) {
-                    setArtikel(dataArtikel);
-                }
-
+                setArtikel(dataArtikel);
             } catch (err) {
-                console.error("Gagal mengambil artikel:", err);
+                console.error(
+                    "Gagal mengambil artikel:",
+                    err
+                );
 
-                if (mounted) {
-                    setArtikel([]);
-
-                    const pesan =
-                        err?.response?.data?.message ||
-                        err?.message ||
-                        "Gagal mengambil artikel";
-
-                    setError(pesan);
+                if (!mounted) {
+                    return;
                 }
 
+                setArtikel([]);
+
+                setError(
+                    err?.message ||
+                    "Gagal mengambil artikel dari server."
+                );
             } finally {
                 if (mounted) {
                     setLoading(false);
@@ -74,29 +78,14 @@ export default function Artikel() {
         };
     }, []);
 
-    // URL gambar artikel
     function getImageUrl(gambar) {
         if (!gambar) {
-            return "http://localhost:5000/uploads/images/default.jpg";
+            return imageUrl("default.svg");
         }
 
-        // Kalau backend sudah mengirim URL lengkap
-        if (
-            gambar.startsWith("http://") ||
-            gambar.startsWith("https://")
-        ) {
-            return gambar;
-        }
-
-        // Kalau sudah berupa path
-        if (gambar.startsWith("/")) {
-            return `http://localhost:5000${gambar}`;
-        }
-
-        return `http://localhost:5000/uploads/images/${gambar}`;
+        return imageUrl(gambar);
     }
 
-    // Format tanggal
     function formatTanggal(tanggal) {
         if (!tanggal) {
             return "-";
@@ -153,8 +142,8 @@ export default function Artikel() {
                         fontSize: "1rem"
                     }}
                 >
-                    Informasi dan cerita terbaru dari Toko Pengrajut
-                    D-PLOSOKK.
+                    Informasi dan cerita terbaru dari Toko
+                    Pengrajut D-PLOSOKK.
                 </p>
             </div>
 
@@ -221,8 +210,8 @@ export default function Artikel() {
                         </h3>
 
                         <p className="text-muted mb-0">
-                            Artikel dari toko pengrajut akan muncul
-                            di sini.
+                            Artikel dari toko pengrajut akan
+                            muncul di sini.
                         </p>
                     </div>
                 )}
@@ -233,7 +222,6 @@ export default function Artikel() {
                 artikel.length > 0 && (
                     <div className="row g-4">
                         {artikel.map((a, index) => {
-                            // Backend menggunakan id_artikel
                             const idArtikel =
                                 a.id_artikel ??
                                 a.id ??
@@ -250,7 +238,7 @@ export default function Artikel() {
 
                             const gambar =
                                 a.gambar ||
-                                "default.jpg";
+                                "default.svg";
 
                             const tanggal =
                                 a.tanggal ||
@@ -269,7 +257,9 @@ export default function Artikel() {
                                             background: "#fff",
                                             border:
                                                 "1px solid #e5e5e5",
-                                            overflow: "hidden"
+                                            overflow: "hidden",
+                                            transition:
+                                                "transform 0.2s ease, box-shadow 0.2s ease"
                                         }}
                                     >
                                         {/* GAMBAR */}
@@ -287,6 +277,7 @@ export default function Artikel() {
                                                     gambar
                                                 )}
                                                 alt={judul}
+                                                loading="lazy"
                                                 style={{
                                                     width: "100%",
                                                     height: "100%",
@@ -295,11 +286,14 @@ export default function Artikel() {
                                                     display:
                                                         "block"
                                                 }}
-                                                onError={(
-                                                    e
-                                                ) => {
+                                                onError={(e) => {
+                                                    e.currentTarget.onerror =
+                                                        null;
+
                                                     e.currentTarget.src =
-                                                        "http://localhost:5000/uploads/images/default.jpg";
+                                                        imageUrl(
+                                                            "default.svg"
+                                                        );
                                                 }}
                                             />
                                         </div>
@@ -307,9 +301,7 @@ export default function Artikel() {
                                         {/* ISI */}
                                         <div className="p-4">
                                             {tanggal && (
-                                                <p
-                                                    className="text-muted small mb-2"
-                                                >
+                                                <p className="text-muted small mb-2">
                                                     {formatTanggal(
                                                         tanggal
                                                     )}

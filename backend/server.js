@@ -34,33 +34,59 @@ const app = express();
 
 
 // ============================================================
-// FOLDER UPLOAD
+// CORS
 // ============================================================
 
-const uploadDir =
-    path.join(
-        __dirname,
-        "uploads",
-        "images"
-    );
-
-if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(
-        uploadDir,
-        {
-            recursive: true
-        }
-    );
-}
-
-
-// ============================================================
-// MIDDLEWARE
-// ============================================================
+const allowedOrigins = [
+    "http://localhost:5173",
+    "https://muhammadilyasa22-pro.github.io"
+];
 
 app.use(
-    cors()
+    cors({
+        origin: function (origin, callback) {
+
+            // Request tanpa Origin tetap diizinkan
+            // Contoh: Postman atau request server
+            if (!origin) {
+                return callback(null, true);
+            }
+
+            if (
+                allowedOrigins.includes(origin)
+            ) {
+                return callback(null, true);
+            }
+
+            return callback(
+                new Error(
+                    "Origin tidak diizinkan oleh CORS"
+                )
+            );
+        },
+
+        methods: [
+            "GET",
+            "POST",
+            "PUT",
+            "PATCH",
+            "DELETE",
+            "OPTIONS"
+        ],
+
+        allowedHeaders: [
+            "Content-Type",
+            "Authorization"
+        ],
+
+        optionsSuccessStatus: 204
+    })
 );
+
+
+// ============================================================
+// BODY PARSER
+// ============================================================
 
 app.use(
     express.json({
@@ -74,6 +100,30 @@ app.use(
         limit: "10mb"
     })
 );
+
+
+// ============================================================
+// FOLDER UPLOAD
+// ============================================================
+
+const uploadDir =
+    path.join(
+        __dirname,
+        "uploads",
+        "images"
+    );
+
+
+if (!fs.existsSync(uploadDir)) {
+
+    fs.mkdirSync(
+        uploadDir,
+        {
+            recursive: true
+        }
+    );
+
+}
 
 
 // ============================================================
@@ -137,21 +187,21 @@ app.use(
 
 
 // ============================================================
-// TEST
+// TEST BACKEND
 // ============================================================
 
 app.get(
     "/",
-    function (
-        req,
-        res
-    ) {
+    function (req, res) {
+
         res.json({
             message:
                 "Backend Toko Pengrajut D-PLOSOKK berjalan",
+
             status:
                 "OK"
         });
+
     }
 );
 
@@ -174,45 +224,72 @@ app.use(
         );
 
 
+        // Error validasi file
         if (
             err.message &&
             err.message.includes(
                 "File harus berupa"
             )
         ) {
+
             return res
                 .status(400)
                 .json({
                     message:
                         err.message
                 });
+
         }
 
 
+        // Error ukuran file
         if (
             err.code ===
             "LIMIT_FILE_SIZE"
         ) {
+
             return res
                 .status(400)
                 .json({
                     message:
                         "Ukuran gambar maksimal 2 MB"
                 });
+
         }
 
 
+        // Error CORS
+        if (
+            err.message ===
+            "Origin tidak diizinkan oleh CORS"
+        ) {
+
+            return res
+                .status(403)
+                .json({
+                    message:
+                        "Origin tidak diizinkan oleh CORS"
+                });
+
+        }
+
+
+        // Error umum
         return res
             .status(500)
             .json({
+
                 message:
                     "Terjadi kesalahan pada server",
+
                 error:
                     process.env.NODE_ENV ===
                     "development"
                         ? err.message
                         : undefined
+
             });
+
     }
 );
 
@@ -223,6 +300,7 @@ app.use(
 
 const PORT =
     process.env.PORT || 5000;
+
 
 app.listen(
     PORT,
@@ -235,5 +313,18 @@ app.listen(
         console.log(
             `Folder gambar: ${uploadDir}`
         );
+
+        console.log(
+            "CORS aktif untuk:"
+        );
+
+        console.log(
+            "- http://localhost:5173"
+        );
+
+        console.log(
+            "- https://muhammadilyasa22-pro.github.io"
+        );
+
     }
 );

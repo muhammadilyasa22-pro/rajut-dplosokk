@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import { getArtikel } from "../services/api";
 
+const IMAGE_BASE_URL =
+    "https://dplosokk.my.id/uploads/images";
+
 export default function Artikel() {
     const [artikel, setArtikel] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -18,36 +21,33 @@ export default function Artikel() {
 
                 console.log("Response artikel:", response);
 
-                // Axios biasanya menyimpan JSON server di response.data
                 const responseData = response?.data;
 
                 let dataArtikel = [];
 
-                // Bentuk:
-                // {
-                //   message: "...",
-                //   data: [...]
-                // }
+                /*
+                 * Kemungkinan response:
+                 *
+                 * 1. { data: [...] }
+                 * 2. [...]
+                 */
+
                 if (Array.isArray(responseData?.data)) {
                     dataArtikel = responseData.data;
-                }
-
-                // Jika API langsung mengembalikan array
-                else if (Array.isArray(responseData)) {
+                } else if (Array.isArray(responseData)) {
                     dataArtikel = responseData;
-                }
-
-                // Jika service sudah mengembalikan data array
-                else if (Array.isArray(response)) {
+                } else if (Array.isArray(response)) {
                     dataArtikel = response;
                 }
 
                 if (mounted) {
                     setArtikel(dataArtikel);
                 }
-
             } catch (err) {
-                console.error("Gagal mengambil artikel:", err);
+                console.error(
+                    "Gagal mengambil artikel:",
+                    err
+                );
 
                 if (mounted) {
                     setArtikel([]);
@@ -59,7 +59,6 @@ export default function Artikel() {
 
                     setError(pesan);
                 }
-
             } finally {
                 if (mounted) {
                     setLoading(false);
@@ -74,29 +73,73 @@ export default function Artikel() {
         };
     }, []);
 
-    // URL gambar artikel
+    /*
+     * Membuat URL gambar artikel.
+     *
+     * Bisa menangani:
+     * - nama file saja
+     * - /uploads/images/nama.jpg
+     * - /images/nama.jpg
+     * - URL lengkap
+     */
     function getImageUrl(gambar) {
         if (!gambar) {
-            return "http://localhost:5000/uploads/images/default.jpg";
+            return `${IMAGE_BASE_URL}/default.jpg`;
         }
 
-        // Kalau backend sudah mengirim URL lengkap
+        let value = String(gambar)
+            .trim()
+            .replace(/\\/g, "/");
+
+        /*
+         * Jika backend sudah memberikan URL lengkap
+         */
         if (
-            gambar.startsWith("http://") ||
-            gambar.startsWith("https://")
+            value.startsWith("http://") ||
+            value.startsWith("https://")
         ) {
-            return gambar;
+            return value;
         }
 
-        // Kalau sudah berupa path
-        if (gambar.startsWith("/")) {
-            return `http://localhost:5000${gambar}`;
-        }
+        /*
+         * Hilangkan slash di bagian depan
+         */
+        value = value.replace(/^\/+/, "");
 
-        return `http://localhost:5000/uploads/images/${gambar}`;
+        /*
+         * Hilangkan prefix yang mungkin berasal
+         * dari response backend
+         */
+        value = value.replace(
+            /^uploads\/images\//i,
+            ""
+        );
+
+        value = value.replace(
+            /^uploads\//i,
+            ""
+        );
+
+        value = value.replace(
+            /^images\//i,
+            ""
+        );
+
+        /*
+         * Ambil nama file terakhir
+         */
+        value =
+            value.split("/").pop() ||
+            "default.jpg";
+
+        return `${IMAGE_BASE_URL}/${encodeURIComponent(
+            value
+        )}`;
     }
 
-    // Format tanggal
+    /*
+     * Format tanggal Indonesia
+     */
     function formatTanggal(tanggal) {
         if (!tanggal) {
             return "-";
@@ -109,11 +152,14 @@ export default function Artikel() {
                 return tanggal;
             }
 
-            return date.toLocaleDateString("id-ID", {
-                day: "2-digit",
-                month: "long",
-                year: "numeric"
-            });
+            return date.toLocaleDateString(
+                "id-ID",
+                {
+                    day: "2-digit",
+                    month: "long",
+                    year: "numeric"
+                }
+            );
         } catch {
             return tanggal;
         }
@@ -153,8 +199,8 @@ export default function Artikel() {
                         fontSize: "1rem"
                     }}
                 >
-                    Informasi dan cerita terbaru dari Toko Pengrajut
-                    D-PLOSOKK.
+                    Informasi dan cerita terbaru dari
+                    Toko Pengrajut D-PLOSOKK.
                 </p>
             </div>
 
@@ -212,7 +258,8 @@ export default function Artikel() {
                     <div
                         className="text-center py-5"
                         style={{
-                            border: "1px solid #e5e5e5",
+                            border:
+                                "1px solid #e5e5e5",
                             background: "#fff"
                         }}
                     >
@@ -221,8 +268,8 @@ export default function Artikel() {
                         </h3>
 
                         <p className="text-muted mb-0">
-                            Artikel dari toko pengrajut akan muncul
-                            di sini.
+                            Artikel dari toko pengrajut
+                            akan muncul di sini.
                         </p>
                     </div>
                 )}
@@ -233,25 +280,39 @@ export default function Artikel() {
                 artikel.length > 0 && (
                     <div className="row g-4">
                         {artikel.map((a, index) => {
-                            // Backend menggunakan id_artikel
+                            /*
+                             * ID artikel
+                             */
                             const idArtikel =
                                 a.id_artikel ??
                                 a.id ??
                                 index;
 
+                            /*
+                             * Judul
+                             */
                             const judul =
                                 a.judul ||
                                 "Tanpa judul";
 
+                            /*
+                             * Ringkasan artikel
+                             */
                             const ringkasan =
                                 a.ringkasan ||
                                 a.isi ||
                                 "Tidak ada ringkasan artikel.";
 
+                            /*
+                             * Gambar artikel
+                             */
                             const gambar =
                                 a.gambar ||
                                 "default.jpg";
 
+                            /*
+                             * Tanggal artikel
+                             */
                             const tanggal =
                                 a.tanggal ||
                                 a.created_at ||
@@ -266,20 +327,25 @@ export default function Artikel() {
                                     <article
                                         className="h-100 article-card"
                                         style={{
-                                            background: "#fff",
+                                            background:
+                                                "#fff",
                                             border:
                                                 "1px solid #e5e5e5",
-                                            overflow: "hidden"
+                                            overflow:
+                                                "hidden"
                                         }}
                                     >
                                         {/* GAMBAR */}
                                         <div
                                             style={{
-                                                width: "100%",
-                                                height: "220px",
+                                                width:
+                                                    "100%",
+                                                height:
+                                                    "220px",
                                                 background:
                                                     "#f2f2f2",
-                                                overflow: "hidden"
+                                                overflow:
+                                                    "hidden"
                                             }}
                                         >
                                             <img
@@ -288,8 +354,10 @@ export default function Artikel() {
                                                 )}
                                                 alt={judul}
                                                 style={{
-                                                    width: "100%",
-                                                    height: "100%",
+                                                    width:
+                                                        "100%",
+                                                    height:
+                                                        "100%",
                                                     objectFit:
                                                         "cover",
                                                     display:
@@ -298,14 +366,18 @@ export default function Artikel() {
                                                 onError={(
                                                     e
                                                 ) => {
+                                                    e.currentTarget.onerror =
+                                                        null;
+
                                                     e.currentTarget.src =
-                                                        "http://localhost:5000/uploads/images/default.jpg";
+                                                        `${IMAGE_BASE_URL}/default.jpg`;
                                                 }}
                                             />
                                         </div>
 
                                         {/* ISI */}
                                         <div className="p-4">
+                                            {/* TANGGAL */}
                                             {tanggal && (
                                                 <p
                                                     className="text-muted small mb-2"
@@ -316,6 +388,7 @@ export default function Artikel() {
                                                 </p>
                                             )}
 
+                                            {/* JUDUL */}
                                             <h2
                                                 className="font-display mb-3"
                                                 style={{
@@ -328,6 +401,7 @@ export default function Artikel() {
                                                 {judul}
                                             </h2>
 
+                                            {/* RINGKASAN */}
                                             <p
                                                 className="text-muted mb-0"
                                                 style={{
