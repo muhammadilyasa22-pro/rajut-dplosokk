@@ -1,4 +1,6 @@
-const BASE_URL = "https://dplosokk.my.id/api";
+import { API_URL } from "../config";
+
+const BASE_URL = API_URL;
 
 class ApiError extends Error {
   constructor(message, status, data) {

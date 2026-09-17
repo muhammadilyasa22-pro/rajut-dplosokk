@@ -1,18 +1,18 @@
 const API_URL =
   import.meta.env.VITE_API_URL ||
-  "https://dplosokk.my.id/api";
+  "http://localhost:5000/api";
 
-// URL publik folder gambar backend.
 const configuredUploadUrl =
   import.meta.env.VITE_UPLOAD_URL ||
-  "https://dplosokk.my.id/uploads/images";
+  "http://localhost:5000/uploads";
 
 const UPLOAD_URL = configuredUploadUrl
   .replace(/\\/g, "/")
   .replace(/\/+$/, "")
   .replace(/\/images$/i, "");
 
-export const IMAGE_BASE_URL = `${UPLOAD_URL}/images`;
+export const IMAGE_BASE_URL =
+  `${UPLOAD_URL}/images`;
 
 export { API_URL };
 
@@ -38,7 +38,7 @@ export function imageUrl(filename) {
     .replace(/^images\/+/i, "")
     .replace(/^uploads\/+images\/+/i, "");
 
-  // Jika kosong atau merupakan nama default lama.
+  // Gunakan gambar default jika nama file kosong.
   if (
     !value ||
     /^default\.(jpg|jpeg|png|webp)$/i.test(value)
@@ -46,7 +46,7 @@ export function imageUrl(filename) {
     value = "default.svg";
   }
 
-  // Ambil nama file terakhir.
+  // Ambil nama file terakhir saja.
   value =
     value.split("/").pop() ||
     "default.svg";
