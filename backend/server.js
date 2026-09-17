@@ -5,30 +5,14 @@ const cors = require("cors");
 const path = require("path");
 const fs = require("fs");
 
-const authRoutes =
-    require("./routes/authRoutes");
-
-const produkRoutes =
-    require("./routes/produkRoutes");
-
-const pembelianRoutes =
-    require("./routes/pembelianRoutes");
-
-const artikelRoutes =
-    require("./routes/artikelRoutes");
-
-const adminRoutes =
-    require("./routes/adminRoutes");
-
-const pengaturanRoutes =
-    require("./routes/pengaturanRoutes");
-
-const kategoriRoutes =
-    require("./routes/kategoriRoutes");
-
-const ulasanRoutes =
-    require("./routes/ulasanRoutes");
-
+const authRoutes = require("./routes/authRoutes");
+const produkRoutes = require("./routes/produkRoutes");
+const pembelianRoutes = require("./routes/pembelianRoutes");
+const artikelRoutes = require("./routes/artikelRoutes");
+const adminRoutes = require("./routes/adminRoutes");
+const pengaturanRoutes = require("./routes/pengaturanRoutes");
+const kategoriRoutes = require("./routes/kategoriRoutes");
+const ulasanRoutes = require("./routes/ulasanRoutes");
 
 const app = express();
 
@@ -39,29 +23,22 @@ const app = express();
 
 const allowedOrigins = [
     "http://localhost:5173",
-    "https://muhammadilyasa22-pro.github.io"
+    "https://rajut-dplosokk.vercel.app"
 ];
 
 app.use(
     cors({
         origin: function (origin, callback) {
-
-            // Request tanpa Origin tetap diizinkan
-            // Contoh: Postman atau request server
             if (!origin) {
                 return callback(null, true);
             }
 
-            if (
-                allowedOrigins.includes(origin)
-            ) {
+            if (allowedOrigins.includes(origin)) {
                 return callback(null, true);
             }
 
             return callback(
-                new Error(
-                    "Origin tidak diizinkan oleh CORS"
-                )
+                new Error("Origin tidak diizinkan oleh CORS")
             );
         },
 
@@ -106,23 +83,16 @@ app.use(
 // FOLDER UPLOAD
 // ============================================================
 
-const uploadDir =
-    path.join(
-        __dirname,
-        "uploads",
-        "images"
-    );
-
+const uploadDir = path.join(
+    __dirname,
+    "uploads",
+    "images"
+);
 
 if (!fs.existsSync(uploadDir)) {
-
-    fs.mkdirSync(
-        uploadDir,
-        {
-            recursive: true
-        }
-    );
-
+    fs.mkdirSync(uploadDir, {
+        recursive: true
+    });
 }
 
 
@@ -133,10 +103,7 @@ if (!fs.existsSync(uploadDir)) {
 app.use(
     "/uploads",
     express.static(
-        path.join(
-            __dirname,
-            "uploads"
-        )
+        path.join(__dirname, "uploads")
     )
 );
 
@@ -190,122 +157,63 @@ app.use(
 // TEST BACKEND
 // ============================================================
 
-app.get(
-    "/",
-    function (req, res) {
-
-        res.json({
-            message:
-                "Backend Toko Pengrajut D-PLOSOKK berjalan",
-
-            status:
-                "OK"
-        });
-
-    }
-);
+app.get("/", function (req, res) {
+    res.json({
+        message: "Backend Toko Pengrajut D-PLOSOKK berjalan",
+        status: "OK"
+    });
+});
 
 
 // ============================================================
 // ERROR HANDLER
 // ============================================================
 
-app.use(
-    function (
-        err,
-        req,
-        res,
-        next
+app.use(function (err, req, res, next) {
+    console.error("Server error:", err);
+
+    if (
+        err.message &&
+        err.message.includes("File harus berupa")
     ) {
-
-        console.error(
-            "Server error:",
-            err
-        );
-
-
-        // Error validasi file
-        if (
-            err.message &&
-            err.message.includes(
-                "File harus berupa"
-            )
-        ) {
-
-            return res
-                .status(400)
-                .json({
-                    message:
-                        err.message
-                });
-
-        }
-
-
-        // Error ukuran file
-        if (
-            err.code ===
-            "LIMIT_FILE_SIZE"
-        ) {
-
-            return res
-                .status(400)
-                .json({
-                    message:
-                        "Ukuran gambar maksimal 2 MB"
-                });
-
-        }
-
-
-        // Error CORS
-        if (
-            err.message ===
-            "Origin tidak diizinkan oleh CORS"
-        ) {
-
-            return res
-                .status(403)
-                .json({
-                    message:
-                        "Origin tidak diizinkan oleh CORS"
-                });
-
-        }
-
-
-        // Error umum
-        return res
-            .status(500)
-            .json({
-
-                message:
-                    "Terjadi kesalahan pada server",
-
-                error:
-                    process.env.NODE_ENV ===
-                    "development"
-                        ? err.message
-                        : undefined
-
-            });
-
+        return res.status(400).json({
+            message: err.message
+        });
     }
-);
+
+    if (err.code === "LIMIT_FILE_SIZE") {
+        return res.status(400).json({
+            message: "Ukuran gambar maksimal 2 MB"
+        });
+    }
+
+    if (
+        err.message ===
+        "Origin tidak diizinkan oleh CORS"
+    ) {
+        return res.status(403).json({
+            message: "Origin tidak diizinkan oleh CORS"
+        });
+    }
+
+    return res.status(500).json({
+        message: "Terjadi kesalahan pada server",
+        error:
+            process.env.NODE_ENV === "development"
+                ? err.message
+                : undefined
+    });
+});
 
 
 // ============================================================
-// SERVER
+// LOCAL SERVER
 // ============================================================
 
-const PORT =
-    process.env.PORT || 5000;
+if (require.main === module) {
+    const PORT = process.env.PORT || 5000;
 
-
-app.listen(
-    PORT,
-    function () {
-
+    app.listen(PORT, function () {
         console.log(
             `Server berjalan di http://localhost:${PORT}`
         );
@@ -323,8 +231,14 @@ app.listen(
         );
 
         console.log(
-            "- https://muhammadilyasa22-pro.github.io"
+            "- https://rajut-dplosokk.vercel.app"
         );
+    });
+}
 
-    }
-);
+
+// ============================================================
+// VERCEL
+// ============================================================
+
+module.exports = app;
