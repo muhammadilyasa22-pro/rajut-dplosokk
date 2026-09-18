@@ -13,17 +13,16 @@ async function ensureColumns() {
     if (columnsReady) return;
 
     const kolomTambahan = [
-        "ALTER TABLE produk ADD COLUMN bahan VARCHAR(150) NULL",
-        "ALTER TABLE produk ADD COLUMN ukuran VARCHAR(150) NULL",
-        "ALTER TABLE produk ADD COLUMN stok INT NULL"
+        "ALTER TABLE produk ADD COLUMN IF NOT EXISTS bahan VARCHAR(150) NULL",
+        "ALTER TABLE produk ADD COLUMN IF NOT EXISTS ukuran VARCHAR(150) NULL",
+        "ALTER TABLE produk ADD COLUMN IF NOT EXISTS stok INTEGER NULL"
     ];
 
     for (const sql of kolomTambahan) {
         try {
             await db.query(sql);
         } catch (error) {
-            // Kolom sudah ada -> lewati. Error lain -> lempar lagi.
-            if (error.code !== "ER_DUP_FIELDNAME") {
+            if (error.code !== "42701" && !/already exists/i.test(error.message)) {
                 throw error;
             }
         }
@@ -40,13 +39,13 @@ async function ensureUlasanTable() {
 
     await db.query(`
         CREATE TABLE IF NOT EXISTS ulasan (
-            id INT PRIMARY KEY AUTO_INCREMENT,
-            id_produk INT NOT NULL,
-            id_pembeli INT NOT NULL,
-            rating TINYINT NOT NULL,
+            id SERIAL PRIMARY KEY,
+            id_produk INTEGER NOT NULL,
+            id_pembeli INTEGER NOT NULL,
+            rating SMALLINT NOT NULL,
             komentar TEXT NULL,
-            created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-            UNIQUE KEY unique_ulasan (id_produk, id_pembeli)
+            created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+            CONSTRAINT unique_ulasan UNIQUE (id_produk, id_pembeli)
         )
     `);
 

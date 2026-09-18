@@ -13,9 +13,9 @@ async function ensureTable() {
 
     await db.query(`
         CREATE TABLE IF NOT EXISTS kategori (
-            id INT PRIMARY KEY AUTO_INCREMENT,
+            id SERIAL PRIMARY KEY,
             nama VARCHAR(100) NOT NULL UNIQUE,
-            created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+            created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
         )
     `);
 
@@ -23,13 +23,15 @@ async function ensureTable() {
 
     if (rows[0].jumlah === 0) {
         await db.query(`
-            INSERT IGNORE INTO kategori (nama) VALUES
+            INSERT INTO kategori (nama)
+            VALUES
                 ('Baju Rajut'),
                 ('Sweater'),
                 ('Tas Rajut'),
                 ('Mainan Rajut'),
                 ('Aksesori Rajut'),
                 ('Souvenir Rajut')
+            ON CONFLICT (nama) DO NOTHING
         `);
     }
 

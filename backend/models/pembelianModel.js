@@ -17,10 +17,10 @@ async function ensureColumns() {
     try {
         await db.query(`
             ALTER TABLE pembelian
-            ADD COLUMN dibuat_pada TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+            ADD COLUMN IF NOT EXISTS dibuat_pada TIMESTAMPTZ NOT NULL DEFAULT NOW()
         `);
     } catch (error) {
-        if (error.code !== "ER_DUP_FIELDNAME") {
+        if (error.code !== "42701" && !/already exists/i.test(error.message)) {
             throw error;
         }
     }

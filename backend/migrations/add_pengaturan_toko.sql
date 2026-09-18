@@ -4,9 +4,9 @@
 -- kalau migrasi ini belum sempat dijalankan, jadi fitur QRIS tetap aman berjalan.
 
 CREATE TABLE IF NOT EXISTS pengaturan_toko (
-    id INT PRIMARY KEY,
+    id INTEGER PRIMARY KEY,
     qris_image VARCHAR(255) NULL,
-    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 INSERT INTO pengaturan_toko (id, qris_image)

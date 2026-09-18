@@ -11,13 +11,13 @@ async function ensureTable() {
 
     await db.query(`
         CREATE TABLE IF NOT EXISTS ulasan (
-            id INT PRIMARY KEY AUTO_INCREMENT,
-            id_produk INT NOT NULL,
-            id_pembeli INT NOT NULL,
-            rating TINYINT NOT NULL,
+            id SERIAL PRIMARY KEY,
+            id_produk INTEGER NOT NULL,
+            id_pembeli INTEGER NOT NULL,
+            rating SMALLINT NOT NULL,
             komentar TEXT NULL,
-            created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-            UNIQUE KEY unique_ulasan (id_produk, id_pembeli)
+            created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+            CONSTRAINT unique_ulasan UNIQUE (id_produk, id_pembeli)
         )
     `);
 
