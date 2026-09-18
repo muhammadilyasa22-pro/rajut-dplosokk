@@ -196,6 +196,20 @@ app.use(function (err, req, res, next) {
         });
     }
 
+    const isDatabaseConnectionError =
+        err && (
+            err.code === "ECONNREFUSED" ||
+            err.code === "ENOTFOUND" ||
+            err.code === "EAI_AGAIN" ||
+            /password.*string|SASL|connect.*database|database.*connect|ECONNRESET/i.test(err.message || "")
+        );
+
+    if (isDatabaseConnectionError) {
+        return res.status(503).json({
+            message: "Database tidak dapat dihubungi. Periksa DATABASE_URL atau kredensial PostgreSQL/Supabase Anda."
+        });
+    }
+
     return res.status(500).json({
         message: "Terjadi kesalahan pada server",
         error:

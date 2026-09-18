@@ -1,16 +1,21 @@
-const { Pool } = require("pg");
+const mysql = require("mysql2/promise");
 
-const connectionString =
-    process.env.DATABASE_URL ||
-    `postgresql://${encodeURIComponent(process.env.DB_USER || "postgres")}:${encodeURIComponent(process.env.DB_PASSWORD || "")}@${process.env.DB_HOST || "localhost"}:${process.env.DB_PORT || 5432}/${process.env.DB_NAME || "postgres"}`;
+const connectionString = process.env.DATABASE_URL;
 
-const pool = new Pool({
-    connectionString,
-    ssl:
-        process.env.PG_SSL === "true" ||
-        connectionString.includes("supabase.com")
-            ? { rejectUnauthorized: false }
-            : false
+if (!connectionString) {
+    console.error("DATABASE_URL belum diset");
+}
+
+const pool = mysql.createPool({
+    uri: connectionString,
+    waitForConnections: true,
+    connectionLimit: 1,
+    queueLimit: 0,
+    connectTimeout: 10000
+});
+
+pool.on("error", (err) => {
+    console.error("MariaDB Pool Error:", err.message);
 });
 
 function isSelectQuery(sql) {
@@ -21,41 +26,32 @@ function isInsertQuery(sql) {
     return /^\s*INSERT\b/i.test(sql);
 }
 
-function transformQuestionMarks(sql, params = []) {
-    let index = 0;
-    const transformed = sql.replace(/\?/g, () => {
-        index += 1;
-        return `$${index}`;
-    });
-
-    return {
-        text: transformed,
-        values: Array.isArray(params) ? params : [params]
-    };
-}
-
 async function query(sql, params = []) {
-    const { text, values } = transformQuestionMarks(sql, params);
-    const finalSql = isInsertQuery(sql) && !/\bRETURNING\b/i.test(sql)
-        ? `${text} RETURNING *`
-        : text;
+    try {
+        const values = Array.isArray(params) ? params : [params];
 
-    const result = await pool.query(finalSql, values);
+        const [result, fields] = await pool.execute(sql, values);
 
-    if (isSelectQuery(sql)) {
-        return [result.rows, result.fields];
+        if (isSelectQuery(sql)) {
+            return [result, fields];
+        }
+
+        return [
+            {
+                ...result,
+                insertId: result.insertId
+                    ? Number(result.insertId)
+                    : null,
+                affectedRows: Number(result.affectedRows || 0)
+            },
+            fields
+        ];
+    } catch (error) {
+        console.error("DATABASE QUERY ERROR:");
+        console.error("SQL:", sql);
+        console.error("ERROR:", error.message);
+        throw error;
     }
-
-    const insertId =
-        result.rows && result.rows[0] && Object.prototype.hasOwnProperty.call(result.rows[0], "id")
-            ? Number(result.rows[0].id)
-            : null;
-
-    return [{
-        ...result,
-        insertId,
-        affectedRows: Number(result.rowCount || 0)
-    }, result.fields];
 }
 
 module.exports = {

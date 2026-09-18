@@ -1,10 +1,42 @@
-const API_URL =
-  import.meta.env.VITE_API_URL ||
-  "http://localhost:5000/api";
+const getRuntimeApiUrl = () => {
+  if (import.meta.env.VITE_API_URL) {
+    return import.meta.env.VITE_API_URL.replace(/\/+$/, "");
+  }
 
-const configuredUploadUrl =
-  import.meta.env.VITE_UPLOAD_URL ||
-  "http://localhost:5000/uploads";
+  if (typeof window !== "undefined") {
+    const host = window.location.hostname;
+
+    if (host === "localhost" || host === "127.0.0.1") {
+      return "http://localhost:5000/api";
+    }
+
+    return `${window.location.origin}/api`;
+  }
+
+  return "http://localhost:5000/api";
+};
+
+const API_URL = getRuntimeApiUrl();
+
+const getRuntimeUploadUrl = () => {
+  if (import.meta.env.VITE_UPLOAD_URL) {
+    return import.meta.env.VITE_UPLOAD_URL.replace(/\/+$/, "");
+  }
+
+  if (typeof window !== "undefined") {
+    const host = window.location.hostname;
+
+    if (host === "localhost" || host === "127.0.0.1") {
+      return "http://localhost:5000/uploads";
+    }
+
+    return `${window.location.origin}/uploads`;
+  }
+
+  return "http://localhost:5000/uploads";
+};
+
+const configuredUploadUrl = getRuntimeUploadUrl();
 
 const UPLOAD_URL = configuredUploadUrl
   .replace(/\\/g, "/")
