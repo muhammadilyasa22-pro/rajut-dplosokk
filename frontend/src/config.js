@@ -1,52 +1,17 @@
-const getRuntimeApiUrl = () => {
-  if (import.meta.env.VITE_API_URL) {
-    return import.meta.env.VITE_API_URL.replace(/\/+$/, "");
-  }
+const API_URL =
+  "https://rajut-dplosokk-9g6n.vercel.app/api";
 
-  if (typeof window !== "undefined") {
-    const host = window.location.hostname;
+const UPLOAD_URL =
+  "https://rajut-dplosokk-9g6n.vercel.app/uploads";
 
-    if (host === "localhost" || host === "127.0.0.1") {
-      return "http://localhost:5000/api";
-    }
+const IMAGE_BASE_URL =
+  "https://rajut-dplosokk-9g6n.vercel.app/uploads/images";
 
-    return `${window.location.origin}/api`;
-  }
-
-  return "http://localhost:5000/api";
+export {
+  API_URL,
+  UPLOAD_URL,
+  IMAGE_BASE_URL
 };
-
-const API_URL = getRuntimeApiUrl();
-
-const getRuntimeUploadUrl = () => {
-  if (import.meta.env.VITE_UPLOAD_URL) {
-    return import.meta.env.VITE_UPLOAD_URL.replace(/\/+$/, "");
-  }
-
-  if (typeof window !== "undefined") {
-    const host = window.location.hostname;
-
-    if (host === "localhost" || host === "127.0.0.1") {
-      return "http://localhost:5000/uploads";
-    }
-
-    return `${window.location.origin}/uploads`;
-  }
-
-  return "http://localhost:5000/uploads";
-};
-
-const configuredUploadUrl = getRuntimeUploadUrl();
-
-const UPLOAD_URL = configuredUploadUrl
-  .replace(/\\/g, "/")
-  .replace(/\/+$/, "")
-  .replace(/\/images$/i, "");
-
-export const IMAGE_BASE_URL =
-  `${UPLOAD_URL}/images`;
-
-export { API_URL };
 
 export function imageUrl(filename) {
   if (!filename) {
@@ -57,31 +22,26 @@ export function imageUrl(filename) {
     .trim()
     .replace(/\\/g, "/");
 
-  // Jika sudah berupa URL lengkap, langsung gunakan.
+  // Jika sudah berupa URL lengkap
   if (/^https?:\/\//i.test(value)) {
     return value;
   }
 
-  // Bersihkan path yang mungkin tersimpan di database.
+  // Bersihkan path dari database
   value = value
     .replace(/^\/+/, "")
-    .replace(/^https?:\/\/[^/]+\//i, "")
     .replace(/^uploads\/+/i, "")
-    .replace(/^images\/+/i, "")
-    .replace(/^uploads\/+images\/+/i, "");
+    .replace(/^images\/+/i, "");
 
-  // Gunakan gambar default jika nama file kosong.
-  if (
-    !value ||
-    /^default\.(jpg|jpeg|png|webp)$/i.test(value)
-  ) {
-    value = "default.svg";
-  }
-
-  // Ambil nama file terakhir saja.
+  // Ambil nama file terakhir
   value =
     value.split("/").pop() ||
     "default.svg";
+
+  // Jika nama file kosong
+  if (!value) {
+    value = "default.svg";
+  }
 
   return `${IMAGE_BASE_URL}/${encodeURIComponent(value)}`;
 }
